@@ -7,12 +7,12 @@ mod types;
 mod util;
 mod web;
 
-use crate::util::{DEFAULT_CSV_FILE, DEFAULT_DB_FILE};
+use crate::util::{ DEFAULT_CSV_FILE, DEFAULT_DB_FILE };
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{ Parser, Subcommand };
 use env_logger::Env;
 use export::export_csv;
-use log::{debug, error, info, LevelFilter};
+use log::{ debug, error, info, LevelFilter };
 use std::io::Write;
 use util::detect_history_files;
 
@@ -113,17 +113,12 @@ fn run(cli: Cli) -> Result<()> {
     match cli.command {
         Command::Show => show(cli.db_file),
         Command::Export(Export { csv_file }) => export_csv(csv_file, cli.db_file),
-        Command::Serve(Serve { addr }) => web::serve(addr, cli.db_file),
-        Command::Backup(Backup {
-            history_files,
-            disable_detect,
-            dry_run,
-        }) => {
-            let mut files = if disable_detect {
-                Vec::new()
-            } else {
-                detect_history_files()
-            };
+        Command::Serve(Serve { addr }) => {
+            println!("Please visit http://{} in your web browser.", addr);
+            web::serve(addr, cli.db_file)
+        }
+        Command::Backup(Backup { history_files, disable_detect, dry_run }) => {
+            let mut files = if disable_detect { Vec::new() } else { detect_history_files() };
             files.extend(history_files);
             backup::backup(files, cli.db_file, dry_run)
         }
